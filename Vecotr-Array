@@ -1,0 +1,223 @@
+#include <iostream>
+#include <iomanip>
+#include <time.h>
+using namespace std;
+template <typename T>
+class Vector
+{
+	friend istream& operator >> (istream&, Vector&);
+public:
+	Vector(int = 100);
+	~Vector();
+	int getSize(int);
+	int bitCount(int);
+	void getCapacity(int&);
+	const Vector& operator = (const Vector&);
+	bool  operator > (const Vector&);
+	const Vector operator*(const Vector&);
+	T& operator[](int);
+	void sort(Vector&, int);
+	void push_back(int&, T);
+	void pop_back(int&);
+	void print(int);
+private:
+	int size;
+	T* array;
+};
+template <typename T>
+Vector<T>::Vector(int arraySize)
+{
+	size = (arraySize > 0 ? arraySize : 100); // if arraysize is bigger than 0, else default size is 100.
+	array = new T[size];                  //  allocating new memory space for array
+	for (int i = 0; i < size; i++)
+		array[i] = 0;                       // initialy the array is empty.
+}
+template<typename T>
+Vector<T>::~Vector()
+{
+	delete[] array; // square scopes needed because array contsins more than one value
+}
+template <typename T>
+int Vector <T>::getSize(int arraySize)  // returning the size of the array
+{
+	return size = (arraySize > 0 ? arraySize : size);
+}
+template <typename T>
+const Vector<T>& Vector<T>:: operator = (const Vector<T>& rhs)
+{
+	if (&rhs != this) // checking for self assignment
+	{
+		if (size != rhs.size) // if the size of array is not equal to size of assigned array
+		{
+			delete[] array;
+			size = rhs.size;
+			array = new T[size]; // allocating new memory for assigned array
+		}
+		for (int i = 0; i < size; i++)
+			array[i] = rhs.array[i];
+	}
+	return *this; // an assignment operator must always return this;
+}
+template <typename T>
+bool  Vector<T>::operator>(const Vector<T>& rhs)
+{
+	for (int i = 0; i < size; i++)
+		if (array[i] > rhs.array[i])
+			return true;
+	return false;
+}
+template <typename T>
+const Vector<T> Vector<T>:: operator*(const Vector<T>& rhs)
+{
+	int result = 0;
+	for (int i = 0; i < size; i++)
+	{
+		result = array[i] * rhs.array[i];
+	}
+	return result;
+}
+template <typename T>
+T& Vector<T>:: operator[](int subscript)
+{
+	if (subscript < 0 || subscript > size)
+		cout << "Error: subscript out of range" << endl;
+	return array[subscript];
+}
+template <typename T>
+void Vector<T>::sort(Vector<T>& v, int size)
+{
+	int insert;
+	int moveItam;
+	for (int i = 0; i < size; i++)
+	{
+		insert = array[i];
+		moveItam = i;
+		while (moveItam > 0 && array[moveItam - 1] > insert)
+		{
+			array[moveItam] = array[moveItam - 1];
+			moveItam--;
+		}
+		array[moveItam] = insert;
+	}
+}
+
+template <typename T>
+void Vector<T>::push_back(int& s, T m)
+{
+	array[s] = m;
+	s++;
+}
+
+template <typename T>
+void Vector<T>::pop_back(int& s)
+{
+	getSize(s--);
+}
+
+template <typename T>
+int Vector<T>::bitCount(int n)
+{
+	int count = 0;
+	while (n > 0)
+	{
+		if (n & 1)
+			count++;
+		n >>= 1;
+	}
+	return count;
+}
+
+template <typename T>
+void  Vector<T>::getCapacity(int &s)
+{
+	for(int i = 1; i <=s*2; i++)
+		if((bitCount(i) == 1)&& (getSize(s) <= i))
+			cout << "Capacity = " << i << endl;
+}
+template <typename T>
+istream& operator>>(istream& input, Vector<T>& v) // overloaded input operator is needed to input values in the array
+{
+	for (int i = 0; i < v.size; i++)
+	{
+		input >> v.array[i];
+
+	}
+	return input;
+
+}
+template <typename T>
+void Vector<T>::print(int n)
+{
+	for (int i = 0; i < n; i++)
+		cout << array[i] << " ";
+	cout << endl;
+}
+
+int main()
+{
+	Vector<int> buzz;
+	Vector<int> foo;
+	Vector<int> bar;
+	Vector <double> Kong(15);
+	int i = 0;
+	cout << "How many numbers \'buzz\' have (from 0 - 100)" << endl;
+	cin >> i;
+	srand(time(NULL));
+	for (int n = 0; n < i; n++)
+	{
+		buzz[n] = rand() % i;
+	}                                 // forming buzz
+	cout << "\nHere are random values of \'buzz\' (from 0 to  " << i << ")" << endl;
+	buzz.print(i);
+	cout << "\nSize of \'buzz\' " << buzz.getSize(i) << endl;      //  size of buzz
+	buzz.getCapacity(i);
+	cout << "\nCopying buzz to \'foo\'" << endl;
+	foo = buzz;                                                // copying buzz to foo
+	foo.print(i);
+	cout << "\nSize of \'foo\' " << foo.getSize(i) << endl;       // size of foo
+	for (int n = 0; n < i; n++)
+		foo[n] = rand() % i;
+	cout << "\nNew values of \'foo \'are" << endl;                // giving foo new values
+	foo.print(i);
+	cout << endl;
+	for (int n = 0; n < i; n++)                               // giving bar values by transforming buzz and foo
+	{
+		if (buzz[n] > foo[n])
+			bar[n] = buzz[n] * buzz[n];
+		else
+			bar[n] = foo[n] * foo[n];
+	}
+	cout << "\nValues of \'bar\':  " << endl;                      // printing bar values
+	bar.print(i);
+	bar.sort(bar, i);
+	cout << "Sorted values of \'bar\'" << endl;                    //sorting bar values
+	bar.print(i);
+	bar.pop_back(i);                                                   // pop_back
+	bar.pop_back(i);
+	cout << "\nPoping last two elements" << endl;
+	bar.print(i);
+	bar.push_back(i, 11);
+	bar.print(i);
+	bar.push_back(i, 12);
+	bar.print(i);
+	bar.push_back(i, 13);
+	cout << "\nPushing back elements in \'bar\' (11,12,13)" << endl;    // push_back
+	bar.print(i);
+	cout << "\nSize of \'bar\' " << bar.getSize(i) << endl;
+	bar.getCapacity(i);
+
+        int n = 5;
+	cout << "\n\n Enter five double values for array \'Kong\'" << endl;
+	for (int i = 0; i < n; i++)
+		cin >> Kong[i];
+	cout << "\nArray Kong: ";
+	Kong.print(n);
+	cout << "\nSize of \'Kong\' " << Kong.getSize(n) << endl;
+	Kong.getCapacity(n);
+	cout << "\nPushing back two elements(10.6, 13.7)" << endl;
+	Kong.push_back(n,10.6);
+	Kong.push_back(n, 13.7);
+	Kong.print(n);
+	cout << "\nSize of \'Kong\' " << Kong.getSize(n) << endl;
+	Kong.getCapacity(n);
+}
